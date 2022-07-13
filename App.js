@@ -17,7 +17,7 @@ const App = () => {
   const [data, setData] = useState();
 
   const api = {
-    key: '95c838504995c1275fa6016b1689c039',
+    key: '',
     baseUrl: 'http://api.openweathermap.org/data/2.5/',
   };
 
