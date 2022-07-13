@@ -14,7 +14,7 @@ import {
 const App = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState();
 
   const api = {
     key: '95c838504995c1275fa6016b1689c039',
@@ -24,17 +24,19 @@ const App = () => {
   const fetchDataHandler = useCallback(() => {
     setLoading(true);
     setInput('');
-    axios({
-      method: 'GET',
-      url: `https://api.openweathermap.org/data/2.5/weather?q=${input}&units=metric&appid=${api.key}`,
-    })
-      //https://api.openweathermap.org/data/2.5/weather?q=${input}&units=metric&appid=${api.key}
+    console.log(input);
+    axios
+      .get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${input}&units=metric&appid=${api.key}`,
+      )
       .then(result => {
         console.log(result.data);
+        setData(result.data);
       })
       .catch(err => {
-        console.log(err);
-      });
+        console.dir(err);
+      })
+      .finally(() => setLoading(false));
   }, [api.key, input]);
 
   return (
@@ -47,7 +49,7 @@ const App = () => {
         <View>
           <TextInput
             placeholder="Enter city name and press returtn... "
-            onChange={text => setInput(text)}
+            onChangeText={text => setInput(text)}
             value={input}
             placeholderTextColor={'#000'}
             style={styles.textInput}
@@ -57,6 +59,20 @@ const App = () => {
         {loading && (
           <View>
             <ActivityIndicator size={'large'} color={'#000'} />
+          </View>
+        )}
+        {!data ? null : (
+          <View style={styles.infoView}>
+            <Text style={styles.cityCountryText}>
+              {`${data?.name} ${data?.sys?.country}`}
+            </Text>
+            <Text style={styles.dateText}>{new Date().toLocaleString()}</Text>
+            <Text style={styles.tempText}>
+              {`${Math.round(data?.main?.temp)} °C`}
+            </Text>
+            <Text style={styles.minMaxTem}>{`Min ${Math.round(
+              data?.main?.temp_min,
+            )} °C / Max ${Math.round(data?.main?.temp_max)} °C`}</Text>
           </View>
         )}
       </ImageBackground>
@@ -82,6 +98,31 @@ const styles = StyleSheet.create({
     fontSize: 19,
     borderRadius: 16,
     borderBottomColor: '#df8e00',
+    textAlign: 'center',
+  },
+  infoView: {
+    alignItems: 'center',
+  },
+  cityCountryText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 40,
+  },
+  dateText: {
+    color: 'white',
+    fontSize: 22,
+    marginVertical: 10,
+  },
+  tempText: {
+    fontSize: 45,
+    color: 'white',
+    marginVertical: 10,
+  },
+  minMaxTem: {
+    fontSize: 22,
+    color: 'white',
+    marginVertical: 10,
+    fontWeight: '500',
   },
 });
 
